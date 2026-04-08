@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Borrower Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">ToolShare</div>
+    <nav>
+        <a href="first.html">Home</a>
+        <a href="request.html">Borrower</a>
+        <a href="#" onclick="logoutUser()">Logout</a>
+    </nav>
+</header>
+
+<div class="form-container">
+    <h2>Request a Tool</h2>
+
+    <form id="requestForm" onsubmit="postBorrowerRequest(event)">
+
+        <textarea id="userNeed" placeholder="Describe your need. Example: I need a tool for drilling for a week from 1 to 7"></textarea>
+
+        <button type="button" onclick="recommendToolWithAI()">Recommend Tool</button>
+       
+        <input type="text" id="toolName" placeholder="Enter Tool Name" required>
+        <input type="text" id="duration" placeholder="Duration (e.g., 3 days)" required>
+        <input type="date" id="pickupDate" required>
+        <input type="date" id="returnDate" required>
+        <textarea id="borrowerMessage" placeholder="Describe the tool you need"></textarea>
+
+        <button type="submit">Submit Request</button>
+    </form>
+</div>
+
+<div class="owner-container">
+    <h2>Your Requests</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tool</th>
+                <th>Duration</th>
+                <th>Pickup</th>
+                <th>Return</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="borrowerTable"></tbody>
+    </table>
+</div>
+
+<div class="owner-container">
+    <h2>Selected Request</h2>
+    <p id="selectedRequestText">Select a request row first.</p>
+</div>
+
+<div class="owner-container">
+    <h2>Request Details</h2>
+    <div id="requestDetailsBox" class="payment-box"></div>
+</div>
+
+<div class="owner-container">
+    <h2>Chat</h2>
+    <div id="chatBox" class="chat-box"></div>
+    <input type="text" id="chatInput" placeholder="Type message">
+    <button onclick="sendChatMessage()">Send</button>
+</div>
+
+<div class="owner-container">
+    <h2>Payment Details</h2>
+
+    <select id="borrowerUpiApp" required>
+        <option value="">Select UPI App</option>
+        <option value="PhonePe">PhonePe</option>
+        <option value="Google Pay">Google Pay</option>
+        <option value="Paytm">Paytm</option>
+        <option value="BHIM">BHIM</option>
+        <option value="Amazon Pay">Amazon Pay</option>
+        <option value="Other">Other</option>
+    </select>
+
+    <input type="text" id="borrowerTransactionId" placeholder="Transaction ID" required>
+
+    <label for="paymentProof" style="display:block; margin-top:10px; margin-bottom:6px; font-weight:600;">
+        Upload Payment Screenshot / Proof
+    </label>
+    <input type="file" id="paymentProof" accept="image/*,application/pdf" required>
+
+    <button onclick="submitBorrowerPayment()">Submit Payment</button>
+
+    <div id="paymentInfo" class="payment-box"></div>
+</div>
+
+<div class="owner-container">
+    <h2 id="reviewSectionTitle">Owner Feedback & Ratings</h2>
+
+    <select id="reviewRating">
+        <option value="">Select Rating</option>
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Very Good</option>
+        <option value="3">3 - Good</option>
+        <option value="2">2 - Fair</option>
+        <option value="1">1 - Poor</option>
+    </select>
+
+    <textarea id="reviewComment" placeholder="Write your feedback about the owner"></textarea>
+    <button id="reviewSubmitBtn" onclick="submitReview()">Submit Review</button>
+
+    <div id="reviewsBox" class="payment-box"></div>
+</div>
+
+<footer>
+    <p style="text-align:left;">© 2026 ToolShare</p>
+</footer>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
