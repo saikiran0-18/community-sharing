@@ -426,21 +426,27 @@ async function createPaymentSetup() {
         const depositAmount = document.getElementById("ownerDepositAmount")?.value.trim() || "";
         const ownerUpiId = document.getElementById("ownerUpiId")?.value.trim() || "";
         const ownerNote = document.getElementById("ownerNote")?.value.trim() || "";
+        const ownerQrImage = document.getElementById("ownerQrImage")?.files?.[0] || null;
 
         if (!rentAmount || !depositAmount || !ownerUpiId) {
             alert("Please fill rent amount, deposit amount, and owner UPI ID.");
             return;
         }
 
+        const formData = new FormData();
+        formData.append("requestId", currentRequestId);
+        formData.append("rentAmount", rentAmount);
+        formData.append("depositAmount", depositAmount);
+        formData.append("ownerUpiId", ownerUpiId);
+        formData.append("ownerNote", ownerNote);
+
+        if (ownerQrImage) {
+            formData.append("ownerQrImage", ownerQrImage);
+        }
+
         const data = await apiFetch("/api/payments/setup", {
             method: "POST",
-            body: JSON.stringify({
-                requestId: currentRequestId,
-                rentAmount,
-                depositAmount,
-                ownerUpiId,
-                ownerNote
-            })
+            body: formData
         });
 
         alert(data.message);
@@ -462,6 +468,12 @@ async function loadPaymentInfo() {
             <p><strong>Rent Amount:</strong> ${payment.rentAmount ?? ""}</p>
             <p><strong>Deposit Amount:</strong> ${payment.depositAmount ?? ""}</p>
             <p><strong>Owner UPI ID:</strong> ${payment.ownerUpiId || ""}</p>
+            ${payment.ownerQrImageUrl ? `
+    <p><strong>Owner QR Code:</strong></p>
+    <a href="${API_BASE}${payment.ownerQrImageUrl}" target="_blank">
+        <img src="${API_BASE}${payment.ownerQrImageUrl}" alt="Owner QR Code" style="max-width:220px; margin:10px 0; border:1px solid #ccc; border-radius:8px; cursor:pointer;">
+    </a>
+` : ""}
             <p><strong>Owner Note:</strong> ${payment.ownerNote || ""}</p>
             <p><strong>Borrower UPI App:</strong> ${payment.borrowerUpiApp || ""}</p>
             <p><strong>Borrower Transaction ID:</strong> ${payment.borrowerTransactionId || ""}</p>
