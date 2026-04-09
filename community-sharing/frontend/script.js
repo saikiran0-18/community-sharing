@@ -1,4 +1,4 @@
-const API_BASE = "https://community-sharing.vercel.app";
+const API_BASE = "https://your-render-backend.onrender.com";
 
 let currentRequestId = null;
 let currentRequestDetails = null;
