@@ -11,19 +11,51 @@ require("dotenv").config();
 
 const app = express();
 
+/* ---------------- CORS ---------------- */
+
+const allowedOrigins = [
+  "https://community-sharing1.vercel.app",
+  "https://community-sharing1-dfioulsnt-saikiran0-18s-projects.vercel.app",
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+  "http://127.0.0.1:3000",
+  "http://localhost:3000"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS not allowed for this origin: " + origin));
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+/* ---------------- OPENAI / GEMINI ---------------- */
+
 const openai = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
 });
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+/* ---------------- UPLOADS ---------------- */
 
 const uploadsDir = path.join(__dirname, "uploads");
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
+
 app.use("/uploads", express.static(uploadsDir));
 
 const storage = multer.diskStorage({
@@ -39,10 +71,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+/* ---------------- MONGODB ---------------- */
+
+if (!process.env.MONGODB_URI) {
+  console.error("MONGODB_URI is missing in environment variables");
+  process.exit(1);
+}
+
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err.message));
+
+/* ---------------- HELPERS ---------------- */
 
 function normalizeLocation(value) {
   return (value || "").trim().toLowerCase();
@@ -189,6 +230,10 @@ app.get("/", (req, res) => {
   res.send("ToolShare backend running");
 });
 
+app.get("/api", (req, res) => {
+  res.json({ message: "ToolShare API running" });
+});
+
 /* ---------------- AUTH ---------------- */
 
 app.post("/api/register", async (req, res) => {
@@ -275,7 +320,7 @@ app.post("/api/ai/recommend-tool", auth, async (req, res) => {
     }
 
     if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ message: "GEMINI_API_KEY is missing in .env" });
+      return res.status(500).json({ message: "GEMINI_API_KEY is missing in environment variables" });
     }
 
     const { userNeed } = req.body;
@@ -998,13 +1043,14 @@ app.get("/api/reviews/user/:userId", auth, async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT||3000;
+/* ---------------- SERVER ---------------- */
 
-if(process.env.VERCEL){
+const PORT = process.env.PORT || 3000;
+
+if (process.env.VERCEL) {
   module.exports = app;
 } else {
-  app.listen(PORT,() => {
-
-  console.log(`Server running on port ${PORT}`);
-});
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 }
