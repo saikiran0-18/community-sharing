@@ -1,4 +1,4 @@
-const API_BASE = "https://community-sharing.vercel.app";
+const API_BASE = "http://127.0.0.1:3000";
 
 let currentRequestId = null;
 let currentRequestDetails = null;
@@ -469,9 +469,11 @@ async function loadPaymentInfo() {
             <p><strong>Deposit Amount:</strong> ${payment.depositAmount ?? ""}</p>
             <p><strong>Owner UPI ID:</strong> ${payment.ownerUpiId || ""}</p>
             ${payment.ownerQrImageUrl ? `
-                <p><strong>Owner QR Code:</strong></p>
-                <img src="${API_BASE}${payment.ownerQrImageUrl}" alt="Owner QR Code" style="max-width:220px; margin:10px 0; border:1px solid #ccc; border-radius:8px;">
-            ` : ""}
+    <p><strong>Owner QR Code:</strong></p>
+    <a href="${API_BASE}${payment.ownerQrImageUrl}" target="_blank">
+        <img src="${API_BASE}${payment.ownerQrImageUrl}" alt="Owner QR Code" style="max-width:220px; margin:10px 0; border:1px solid #ccc; border-radius:8px; cursor:pointer;">
+    </a>
+` : ""}
             <p><strong>Owner Note:</strong> ${payment.ownerNote || ""}</p>
             <p><strong>Borrower UPI App:</strong> ${payment.borrowerUpiApp || ""}</p>
             <p><strong>Borrower Transaction ID:</strong> ${payment.borrowerTransactionId || ""}</p>
