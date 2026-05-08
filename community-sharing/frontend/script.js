@@ -313,7 +313,7 @@ async function openRequest(requestId) {
 
         const data = await apiFetch(`/api/requests/${requestId}/details`);
         currentRequestDetails = data;
-
+        loadConditionVideo(requestId);
         const selectedText = document.getElementById("selectedRequestText");
         const detailsBox = document.getElementById("requestDetailsBox");
 
