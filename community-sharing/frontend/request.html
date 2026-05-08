@@ -9,7 +9,7 @@
 <header class="navbar">
     <div class="logo">ToolShare</div>
     <nav>
-        <a href="first.html">Home</a>
+        <a href="index.html">Home</a>
         <a href="request.html">Borrower</a>
         <a href="#" onclick="logoutUser()">Logout</a>
     </nav>
@@ -68,7 +68,7 @@
 </div>
 
 <div class="owner-container">
-    <div class="card" id="conditionVideoSection">
+   <div class="card" id="conditionVideoSection">
   <h2>Tool Condition Video</h2>
 
   <p id="conditionVideoMessage">No video loaded.</p>
@@ -78,6 +78,14 @@
     controls
     style="width:100%; max-height:350px; display:none; border-radius:10px; margin-top:10px;"
   ></video>
+
+  <button
+    id="rejectOwnerBtn"
+    onclick="rejectCurrentOwner()"
+    style="display:none; margin-top:15px; background:#dc3545;"
+  >
+    Reject This Owner & Find Another
+  </button>
 </div>
     <h2>Payment Details</h2>
 

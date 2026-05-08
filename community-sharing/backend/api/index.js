@@ -779,7 +779,60 @@ app.get("/api/verifications/:requestId", auth, async (req, res) => {
 });
 
 /* ---------------- PAYMENTS ---------------- */
+app.post("/api/requests/:requestId/reject-owner", auth, async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.requestId);
 
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    if (request.borrowerId.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Only borrower can reject owner" });
+    }
+
+    if (!request.acceptedOwnerId) {
+      return res.status(400).json({ message: "No accepted owner found" });
+    }
+
+    if (["Payment Submitted", "Payment Confirmed", "Borrowed", "Completed"].includes(request.status)) {
+      return res.status(400).json({
+        message: "Cannot reject owner after payment or borrowing process has started"
+      });
+    }
+
+    const rejectedOwnerId = request.acceptedOwnerId;
+
+    if (!request.rejectedOwnerIds) {
+      request.rejectedOwnerIds = [];
+    }
+
+    if (!request.rejectedOwnerIds.some(id => id.toString() === rejectedOwnerId.toString())) {
+      request.rejectedOwnerIds.push(rejectedOwnerId);
+    }
+
+    request.acceptedOwnerId = null;
+    request.status = "Pending";
+
+    await request.save();
+
+    await Payment.deleteMany({ requestId: request._id });
+
+    await Verification.deleteMany({
+      requestId: request._id,
+      uploadedBy: rejectedOwnerId
+    });
+
+    res.json({
+      message: "Owner rejected successfully. Request is now open for other owners."
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to reject owner",
+      error: error.message
+    });
+  }
+});
 app.post("/api/payments/setup", auth, upload.single("ownerQrImage"), async (req, res) => {
   try {
     if (req.user.role !== "owner") {

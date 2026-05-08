@@ -50,7 +50,7 @@ async function loadConditionVideo(requestId) {
   const section = document.getElementById("conditionVideoSection");
   const message = document.getElementById("conditionVideoMessage");
   const video = document.getElementById("conditionVideoPlayer");
-
+  const rejectBtn = document.getElementById("rejectOwnerBtn");
   if (!section || !message || !video) return;
 
   section.style.display = "block";
@@ -69,9 +69,31 @@ async function loadConditionVideo(requestId) {
     video.src = videoUrl;
     video.style.display = "block";
     message.textContent = "Owner uploaded tool condition video:";
+    if (rejectBtn) rejectBtn.style.display = "inline-block";
   } catch (err) {
     console.error(err);
     message.textContent = "Owner has not uploaded tool condition video yet.";
+  }
+}
+async function rejectCurrentOwner() {
+  if (!currentRequestId) {
+    alert("Please select a request first.");
+    return;
+  }
+
+  const ok = confirm("Are you sure you want to reject this owner and find another owner?");
+  if (!ok) return;
+
+  try {
+    const data = await apiFetch(`/api/requests/${currentRequestId}/reject-owner`, {
+      method: "POST"
+    });
+
+    alert(data.message || "Owner rejected. Request is now open for other owners.");
+
+    window.location.reload();
+  } catch (error) {
+    alert(error.message || "Failed to reject owner.");
   }
 }
 function logoutUser() {
