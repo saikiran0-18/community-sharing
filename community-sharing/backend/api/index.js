@@ -740,30 +740,41 @@ app.post("/api/verifications", auth, upload.single("video"), async (req, res) =>
 app.get("/api/verifications/:requestId", auth, async (req, res) => {
   try {
     const request = await Request.findById(req.params.requestId);
+
     if (!request) {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    const isBorrower = request.borrowerId.toString() === req.user.id;
+    const isBorrower =
+      request.borrowerId && request.borrowerId.toString() === req.user.id;
+
     const isOwner =
-      request.acceptedOwnerId && request.acceptedOwnerId.toString() === req.user.id;
+      request.acceptedOwnerId &&
+      request.acceptedOwnerId.toString() === req.user.id;
 
     if (!isBorrower && !isOwner) {
       return res.status(403).json({ message: "No access" });
     }
 
-    const videos = await Verification.find({ requestId: req.params.requestId }).sort({ createdAt: -1 });
+    const verification = await Verification.findOne({
+      requestId: req.params.requestId
+    }).sort({ createdAt: -1 });
 
-    res.json(
-      videos.map((video) => ({
-        id: video._id.toString(),
-        videoUrl: video.videoUrl,
-        uploadedBy: video.uploadedBy.toString(),
-        createdAt: video.createdAt
-      }))
-    );
+    if (!verification) {
+      return res.status(404).json({ message: "No verification video found" });
+    }
+
+    res.json({
+      id: verification._id.toString(),
+      videoUrl: verification.videoUrl,
+      uploadedBy: verification.uploadedBy.toString(),
+      createdAt: verification.createdAt
+    });
   } catch (error) {
-    res.status(500).json({ message: "Could not load verification videos", error: error.message });
+    res.status(500).json({
+      message: "Could not load verification video",
+      error: error.message
+    });
   }
 });
 

@@ -5,6 +5,7 @@ let currentRequestDetails = null;
 
 /* ---------------- BASIC ---------------- */
 
+
 function getToken() {
     return localStorage.getItem("token") || "";
 }
@@ -45,6 +46,34 @@ async function apiFetch(path, options = {}) {
     return data;
 }
 
+async function loadConditionVideo(requestId) {
+  const section = document.getElementById("conditionVideoSection");
+  const message = document.getElementById("conditionVideoMessage");
+  const video = document.getElementById("conditionVideoPlayer");
+
+  if (!section || !message || !video) return;
+
+  section.style.display = "block";
+  message.textContent = "Checking owner uploaded video...";
+  video.style.display = "none";
+
+  try {
+    const data = await apiFetch(`/api/verifications/${requestId}`);
+
+    let videoUrl = data.videoUrl;
+
+    if (!videoUrl.startsWith("http")) {
+      videoUrl = `${API_BASE}${videoUrl}`;
+    }
+
+    video.src = videoUrl;
+    video.style.display = "block";
+    message.textContent = "Owner uploaded tool condition video:";
+  } catch (err) {
+    console.error(err);
+    message.textContent = "Owner has not uploaded tool condition video yet.";
+  }
+}
 function logoutUser() {
     localStorage.removeItem("token");
     localStorage.removeItem("currentUser");
